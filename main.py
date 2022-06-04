@@ -629,11 +629,13 @@ def main():
     g = Graph(mde)
 
     print('Gerando os pontos de amostra')
-    sample_coords = generate_sample_points(0.25)
+    sampling_rate = 25
+    sample_coords = generate_sample_points(sampling_rate/100)
     save_path_csv("sample_points.csv", sample_coords)
 
     print('Gerando os viewsheds')
-    viewpoints = [(145, 173), (156, 121), (156, 71), (15, 121), (59, 172), (52, 91), (45, 17), (103, 26), (90, 117)]
+    #viewpoints = [(145, 173), (156, 121), (156, 71), (15, 121), (59, 172), (52, 91), (45, 17), (103, 26), (90, 117)]
+    viewpoints = [(145, 173), (156, 71), (103, 26)]
     view_radius = 40
     viewpoint_height = 10
 
@@ -671,8 +673,6 @@ def main():
     # ------------------------------------------------------
     '''
 
-    return
-
     V, E, W = generate_sssp_arrays(g)
 
     print('Gerando o dataset')
@@ -683,6 +683,8 @@ def main():
         viewshed = read_viewshed(visibility_map_file)
         viewshed = g.normalize_visibility3(viewshed)
         S = serialize_viewshed(viewshed)
+
+        #sample_coords = generate_sample_points(0.1)
 
         aux = 0
         for src_coords in sample_coords:
@@ -695,7 +697,7 @@ def main():
                 data_io.write("""%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n""" % (int(vp[1] * CELL_WIDTH), int(vp[0] * CELL_HEIGHT), mde.grid[vp[0], vp[1]], int(src_coords[1] * CELL_WIDTH), int(src_coords[0] * CELL_HEIGHT), mde.grid[src_coords[0], src_coords[1]], int(dest_coords[1] * CELL_WIDTH), int(dest_coords[0] * CELL_HEIGHT), mde.grid[dest_coords[0], dest_coords[1]], C[dest]))
             aux = aux +1
 
-            write_dataset_csv('dataset.csv', data_io)
+            write_dataset_csv('dataset_'+str(len(viewpoints))+'_'+str(sampling_rate)+'.csv', data_io)
         print('Tempo: ' + str(process_time() - start_time) + ' segundos')
 
     print('Dataset gerado com sucesso!')
